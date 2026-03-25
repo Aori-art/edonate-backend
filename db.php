@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db = "edonate"; // Make sure this matches your actual database name
+$db = "edonate";
 
 $conn = new mysqli($host, $user, $pass, $db);
 
