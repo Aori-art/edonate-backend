@@ -18,7 +18,7 @@ function sendOtpEmail($recipientEmail, $otpCode) {
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        $mail->setFrom('yourgmail@gmail.com', 'eDonate');
+        $mail->setFrom('javaricexml@gmail.com', 'eDonate');
         $mail->addAddress($recipientEmail);
 
         $mail->isHTML(true);
@@ -33,7 +33,38 @@ function sendOtpEmail($recipientEmail, $otpCode) {
 
         return $mail->send();
     } catch (Exception $e) {
-    return $mail->ErrorInfo;
+        return $mail->ErrorInfo;
+    }
+}
+
+function sendResetEmail($recipientEmail, $resetLink) {
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'javaricexml@gmail.com';
+        $mail->Password   = 'lrou qevo vibd krao';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom('javaricexml@gmail.com', 'eDonate');
+        $mail->addAddress($recipientEmail);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'eDonate Password Reset';
+        $mail->Body = "
+            <h3>Password Reset Request</h3>
+            <p>You requested to reset your password.</p>
+            <p>Click the link below:</p>
+            <a href='$resetLink'>$resetLink</a>
+            <p>This link will expire in 1 hour.</p>
+        ";
+
+        return $mail->send();
+    } catch (Exception $e) {
+        return $mail->ErrorInfo;
     }
 }
 ?>
