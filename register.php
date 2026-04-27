@@ -11,7 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$full_name      = trim($_POST['full_name'] ?? '');
+// Receive individual name fields directly
+$first_name     = trim($_POST['first_name'] ?? '');
+$middle_initial = trim($_POST['middle_initial'] ?? '');
+$last_name      = trim($_POST['last_name'] ?? '');
+$suffix         = trim($_POST['suffix'] ?? '');
 $email          = trim($_POST['email'] ?? '');
 $phone          = trim($_POST['phone'] ?? '');
 $birthdate      = trim($_POST['birthdate'] ?? '');
@@ -24,9 +28,10 @@ $province       = trim($_POST['province'] ?? '');
 $password       = trim($_POST['password'] ?? '');
 
 if (
-    empty($full_name) || empty($email) || empty($phone) || empty($birthdate) ||
-    empty($gender) || empty($blood_type) || empty($street_address) ||
-    empty($barangay) || empty($municipality) || empty($province) || empty($password)
+    empty($first_name) || empty($last_name) || empty($email) || 
+    empty($phone) || empty($birthdate) || empty($gender) || 
+    empty($blood_type) || empty($street_address) || empty($barangay) || 
+    empty($municipality) || empty($province) || empty($password)
 ) {
     echo json_encode([
         "status" => "error",
@@ -57,10 +62,6 @@ if ($checkEmail->num_rows > 0) {
 }
 $checkEmail->close();
 
-$nameParts = preg_split('/\s+/', $full_name);
-$first_name = $nameParts[0] ?? '';
-$last_name = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : $first_name;
-
 $getBloodType = $conn->prepare("SELECT blood_type_id FROM blood_types WHERE blood_type = ?");
 $getBloodType->bind_param("s", $blood_type);
 $getBloodType->execute();
@@ -90,14 +91,17 @@ try {
     $location_id = $conn->insert_id;
     $insertLocation->close();
 
+    // Insert donor with individual name fields
     $insertDonor = $conn->prepare("
-        INSERT INTO donors (first_name, last_name, gender, birthdate, contact_number, blood_type_id, location_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO donors (first_name, middle_initial, last_name, suffix, gender, birthdate, contact_number, blood_type_id, location_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $insertDonor->bind_param(
-        "sssssii",
+        "sssssssii",
         $first_name,
+        $middle_initial,
         $last_name,
+        $suffix,
         $gender,
         $birthdate,
         $phone,
@@ -132,7 +136,7 @@ try {
     $mailSent = sendOtpEmail($email, $otp_code);
 
     if ($mailSent !== true) {
-    throw new Exception("Failed to send OTP email. " . $mailSent);
+        throw new Exception("Failed to send OTP email. " . $mailSent);
     }
 
     $conn->commit();
