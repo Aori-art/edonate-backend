@@ -27,6 +27,16 @@ $municipality   = trim($_POST['municipality'] ?? '');
 $province       = trim($_POST['province'] ?? '');
 $password       = trim($_POST['password'] ?? '');
 
+// ===== FORMAT NAMES (ADD HERE) =====
+$first_name = ucfirst(strtolower($first_name));
+$last_name  = ucfirst(strtolower($last_name));
+
+// Middle initial → force "A."
+$middle_initial = strtoupper(substr($middle_initial, 0, 1));
+if (!empty($middle_initial)) {
+    $middle_initial .= '.';
+}
+
 if (
     empty($first_name) || empty($last_name) || empty($email) || 
     empty($phone) || empty($birthdate) || empty($gender) || 
