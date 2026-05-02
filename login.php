@@ -47,7 +47,7 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-// 🔒 CHECK IF VERIFIED FIRST
+// CHECK IF VERIFIED FIRST
 if ((int)$user['is_verified'] !== 1) {
     echo json_encode([
         "status" => "error",
