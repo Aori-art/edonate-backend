@@ -34,22 +34,22 @@ if (empty($answers)) {
 $conn->begin_transaction();
 
 try {
-    // Create screening session
+    // STEP 1: create eligibility record
     $stmt = $conn->prepare("
-        INSERT INTO donor_screenings (donor_id, status)
+        INSERT INTO eligibility_status (donor_id, status)
         VALUES (?, 'pending')
     ");
 
     $stmt->bind_param("i", $donor_id);
     $stmt->execute();
 
-    $screening_id = $conn->insert_id;
+    $eligibility_id = $conn->insert_id;
     $stmt->close();
 
-    // Save answers
+    // STEP 2: save answers
     $stmt = $conn->prepare("
         INSERT INTO donor_screening_answers
-        (screening_id, question_id, answer, followup_answer)
+        (eligibility_id, question_id, answer, followup_answer)
         VALUES (?, ?, ?, ?)
     ");
 
@@ -64,7 +64,7 @@ try {
 
         $stmt->bind_param(
             "iiss",
-            $screening_id,
+            $eligibility_id,
             $question_id,
             $answer,
             $followup
@@ -79,8 +79,9 @@ try {
     echo json_encode([
         "status" => "success",
         "message" => "Screening submitted successfully",
-        "screening_id" => $screening_id
+        "eligibility_id" => $eligibility_id
     ]);
+
 } catch (Exception $e) {
     $conn->rollback();
 

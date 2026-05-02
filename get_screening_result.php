@@ -2,14 +2,14 @@
 header("Content-Type: application/json");
 include "db.php";
 
-$screening_id = isset($_GET["screening_id"])
-    ? intval($_GET["screening_id"])
+$eligibility_id = isset($_GET["eligibility_id"])
+    ? intval($_GET["eligibility_id"])
     : 0;
 
-if ($screening_id <= 0) {
+if ($eligibility_id <= 0) {
     echo json_encode([
         "status" => "error",
-        "message" => "Invalid screening_id"
+        "message" => "Invalid eligibility_id"
     ]);
     exit;
 }
@@ -23,12 +23,12 @@ $sql = "
     FROM donor_screening_answers a
     INNER JOIN screening_questions q
         ON a.question_id = q.question_id
-    WHERE a.screening_id = ?
+    WHERE a.eligibility_id = ?
     ORDER BY q.question_order ASC
 ";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $screening_id);
+$stmt->bind_param("i", $eligibility_id);
 $stmt->execute();
 
 $result = $stmt->get_result();
