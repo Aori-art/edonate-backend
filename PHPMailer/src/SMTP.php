@@ -1,200 +1,58 @@
 <?php
-
-/**
- * PHPMailer RFC821 SMTP email transport class.
- * PHP Version 5.5.
- *
- * @see       https://github.com/PHPMailer/PHPMailer/ The PHPMailer GitHub project
- *
- * @author    Marcus Bointon (Synchro/coolbru) <phpmailer@synchromedia.co.uk>
- * @author    Jim Jagielski (jimjag) <jimjag@gmail.com>
- * @author    Andy Prevost (codeworxtech) <codeworxtech@users.sourceforge.net>
- * @author    Brent R. Matzelle (original founder)
- * @copyright 2012 - 2020 Marcus Bointon
- * @copyright 2010 - 2012 Jim Jagielski
- * @copyright 2004 - 2009 Andy Prevost
- * @license   https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html GNU Lesser General Public License
- * @note      This program is distributed in the hope that it will be useful - WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.
- */
-
 namespace PHPMailer\PHPMailer;
-
-/**
- * PHPMailer RFC821 SMTP email transport class.
- * Implements RFC 821 SMTP commands and provides some utility methods for sending mail to an SMTP server.
- *
- * @author Chris Ryan
- * @author Marcus Bointon <phpmailer@synchromedia.co.uk>
- */
 class SMTP
 {
-    /**
-     * The PHPMailer SMTP version number.
-     *
-     * @var string
-     * @deprecated This constant will be removed in PHPMailer 8.0. Use `PHPMailer::VERSION` instead.
-     */
+    
     const VERSION = '7.0.2';
 
-    /**
-     * SMTP line break constant.
-     *
-     * @var string
-     */
+    
     const LE = "\r\n";
 
-    /**
-     * The SMTP port to use if one is not specified.
-     *
-     * @var int
-     */
+    
     const DEFAULT_PORT = 25;
 
-    /**
-     * The SMTPs port to use if one is not specified.
-     *
-     * @var int
-     */
+    
     const DEFAULT_SECURE_PORT = 465;
 
-    /**
-     * The maximum line length allowed by RFC 5321 section 4.5.3.1.6,
-     * *excluding* a trailing CRLF break.
-     *
-     * @see https://www.rfc-editor.org/rfc/rfc5321#section-4.5.3.1.6
-     *
-     * @var int
-     */
+    
     const MAX_LINE_LENGTH = 998;
 
-    /**
-     * The maximum line length allowed for replies in RFC 5321 section 4.5.3.1.5,
-     * *including* a trailing CRLF line break.
-     *
-     * @see https://www.rfc-editor.org/rfc/rfc5321#section-4.5.3.1.5
-     *
-     * @var int
-     */
+    
     const MAX_REPLY_LENGTH = 512;
 
-    /**
-     * Debug level for no output.
-     *
-     * @var int
-     */
+    
     const DEBUG_OFF = 0;
 
-    /**
-     * Debug level to show client -> server messages.
-     *
-     * @var int
-     */
+    
     const DEBUG_CLIENT = 1;
 
-    /**
-     * Debug level to show client -> server and server -> client messages.
-     *
-     * @var int
-     */
+    
     const DEBUG_SERVER = 2;
 
-    /**
-     * Debug level to show connection status, client -> server and server -> client messages.
-     *
-     * @var int
-     */
+    
     const DEBUG_CONNECTION = 3;
 
-    /**
-     * Debug level to show all messages.
-     *
-     * @var int
-     */
+    
     const DEBUG_LOWLEVEL = 4;
 
-    /**
-     * Debug output level.
-     * Options:
-     * * self::DEBUG_OFF (`0`) No debug output, default
-     * * self::DEBUG_CLIENT (`1`) Client commands
-     * * self::DEBUG_SERVER (`2`) Client commands and server responses
-     * * self::DEBUG_CONNECTION (`3`) As DEBUG_SERVER plus connection status
-     * * self::DEBUG_LOWLEVEL (`4`) Low-level data output, all messages.
-     *
-     * @var int
-     */
+    
     public $do_debug = self::DEBUG_OFF;
 
-    /**
-     * How to handle debug output.
-     * Options:
-     * * `echo` Output plain-text as-is, appropriate for CLI
-     * * `html` Output escaped, line breaks converted to `<br>`, appropriate for browser output
-     * * `error_log` Output to error log as configured in php.ini
-     * Alternatively, you can provide a callable expecting two params: a message string and the debug level:
-     *
-     * ```php
-     * $smtp->Debugoutput = function($str, $level) {echo "debug level $level; message: $str";};
-     * ```
-     *
-     * Alternatively, you can pass in an instance of a PSR-3 compatible logger, though only `debug`
-     * level output is used:
-     *
-     * ```php
-     * $mail->Debugoutput = new myPsr3Logger;
-     * ```
-     *
-     * @var string|callable|\Psr\Log\LoggerInterface
-     */
+    
     public $Debugoutput = 'echo';
 
-    /**
-     * Whether to use VERP.
-     *
-     * @see https://en.wikipedia.org/wiki/Variable_envelope_return_path
-     * @see https://www.postfix.org/VERP_README.html Info on VERP
-     *
-     * @var bool
-     */
     public $do_verp = false;
 
-    /**
-     * Whether to use SMTPUTF8.
-     *
-     * @see https://www.rfc-editor.org/rfc/rfc6531
-     *
-     * @var bool
-     */
+    
     public $do_smtputf8 = false;
 
-    /**
-     * The timeout value for connection, in seconds.
-     * Default of 5 minutes (300sec) is from RFC2821 section 4.5.3.2.
-     * This needs to be quite high to function correctly with hosts using greetdelay as an anti-spam measure.
-     *
-     * @see https://www.rfc-editor.org/rfc/rfc2821#section-4.5.3.2
-     *
-     * @var int
-     */
+    
     public $Timeout = 300;
 
-    /**
-     * How long to wait for commands to complete, in seconds.
-     * Default of 5 minutes (300sec) is from RFC2821 section 4.5.3.2.
-     *
-     * @var int
-     */
+   
     public $Timelimit = 300;
 
-    /**
-     * Patterns to extract an SMTP transaction id from reply to a DATA command.
-     * The first capture group in each regex will be used as the ID.
-     * MS ESMTP returns the message ID, which may not be correct for internal tracking.
-     *
-     * @var string[]
-     */
+   
     protected $smtp_transaction_id_patterns = [
         'exim' => '/[\d]{3} OK id=(.*)/',
         'sendmail' => '/[\d]{3} 2\.0\.0 (.*) Message/',
@@ -209,38 +67,15 @@ class SMTP
         'Gsmtp' => '/[\d]{3} 2\.0\.0 OK (.*) - gsmtp/',
     ];
 
-    /**
-     * Allowed SMTP XCLIENT attributes.
-     * Must be allowed by the SMTP server. EHLO response is not checked.
-     *
-     * @see https://www.postfix.org/XCLIENT_README.html
-     *
-     * @var array
-     */
+   
     public static $xclient_allowed_attributes = [
         'NAME', 'ADDR', 'PORT', 'PROTO', 'HELO', 'LOGIN', 'DESTADDR', 'DESTPORT'
     ];
 
-    /**
-     * The last transaction ID issued in response to a DATA command,
-     * if one was detected.
-     *
-     * @var string|bool|null
-     */
     protected $last_smtp_transaction_id;
 
-    /**
-     * The socket for the server connection.
-     *
-     * @var ?resource
-     */
     protected $smtp_conn;
 
-    /**
-     * Error information, if any, for the last SMTP command.
-     *
-     * @var array
-     */
     protected $error = [
         'error' => '',
         'detail' => '',
@@ -248,42 +83,15 @@ class SMTP
         'smtp_code_ex' => '',
     ];
 
-    /**
-     * The reply the server sent to us for HELO.
-     * If null, no HELO string has yet been received.
-     *
-     * @var string|null
-     */
     protected $helo_rply;
 
-    /**
-     * The set of SMTP extensions sent in reply to EHLO command.
-     * Indexes of the array are extension names.
-     * Value at index 'HELO' or 'EHLO' (according to command that was sent)
-     * represents the server name. In case of HELO it is the only element of the array.
-     * Other values can be boolean TRUE or an array containing extension options.
-     * If null, no HELO/EHLO string has yet been received.
-     *
-     * @var array|null
-     */
+  
     protected $server_caps;
 
-    /**
-     * The most recent reply received from the server.
-     *
-     * @var string
-     */
+  
     protected $last_reply = '';
 
-    /**
-     * Output debugging info via a user-selected method.
-     *
-     * @param string $str   Debug string to output
-     * @param int    $level The debug level of this message; see DEBUG_* constants
-     *
-     * @see SMTP::$Debugoutput
-     * @see SMTP::$do_debug
-     */
+  
     protected function edebug($str, $level = 0)
     {
         if ($level > $this->do_debug) {

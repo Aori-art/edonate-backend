@@ -13,12 +13,12 @@ function sendOtpEmail($recipientEmail, $otpCode) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'javaricexml@gmail.com';
-        $mail->Password   = 'lrou qevo vibd krao';
+        $mail->Username   = 'edonate73@gmail.com';
+        $mail->Password   = 'btli yfpw luxc ctly';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        $mail->setFrom('javaricexml@gmail.com', 'eDonate');
+        $mail->setFrom('edonate73@gmail.com', 'eDonate');
         $mail->addAddress($recipientEmail);
 
         $mail->isHTML(true);
@@ -44,12 +44,12 @@ function sendResetEmail($recipientEmail, $resetLink) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'javaricexml@gmail.com';
-        $mail->Password   = 'lrou qevo vibd krao';
+        $mail->Username   = 'edonate73@gmail.com';
+        $mail->Password   = 'btli yfpw luxc ctly';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        $mail->setFrom('javaricexml@gmail.com', 'eDonate');
+        $mail->setFrom('edonate73@gmail.com', 'eDonate');
         $mail->addAddress($recipientEmail);
 
         $mail->isHTML(true);

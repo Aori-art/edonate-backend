@@ -40,7 +40,7 @@ if (!$insert->execute()) {
     exit;
 }
 
-$resetLink = "http://192.168.1.8/edonate_api/reset_password.php?token=$token";
+$resetLink = "http://192.168.1.69/edonate_api/reset_password.php?token=$token";
 
 $resultMail = sendResetEmail($email, $resetLink);
 
